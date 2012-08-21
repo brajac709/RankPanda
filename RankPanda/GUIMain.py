@@ -93,8 +93,8 @@ class MainWindow(wx.Frame):
                     self.core = CoreWrapper.CoreWrapper("Dummy", 10, [(1, 4)], [(1, 1)])
 
                     while loop:
-                        self.dirname = ''
-                        e = wx.FileDialog(self, "Open File", self.dirname, "", "*.panda", wx.OPEN)
+                        dirname = ''
+                        e = wx.FileDialog(self, "Open File", dirname, "", "*.panda", wx.OPEN)
                         if e.ShowModal() == wx.ID_OK:
                             self.filename = os.path.join(e.GetDirectory(), e.GetFilename())
                             if self.core.Load(self.filename) == -1: # load failed
@@ -122,6 +122,7 @@ class MainWindow(wx.Frame):
 
 #self.CreateStatusBar(2)
 #self.SetStatusText("Try these: Exit, Open, Help, About", 1)
+
 
         # begin menubar code
         filemenu = wx.Menu()
@@ -236,10 +237,12 @@ class MainWindow(wx.Frame):
         self.fieldpanel = wx.BoxSizer(wx.VERTICAL)
         self.fieldpanel.Add(self.statusBar, 0, wx.ALIGN_CENTER)
         self.fieldpanel.Add(self.field, 1, wx.EXPAND)
-
+        
+        
+        
         self.rankNameUnicode = wx.Button(self.panel, wx.ID_ANY, "Unicode")
         self.rankNameUnicode.Bind(wx.EVT_BUTTON, self.OnRankNameUnicode)
-        self.holdRankButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.Bitmap('icons/holdicon.png'))
+        self.holdRankButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.Bitmap('icons/holdicon.png')) 
         self.holdRankButton.Bind(wx.EVT_BUTTON, self.OnHoldRank)
         self.curveRankButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.Bitmap('icons/curveicon.png'))
         self.curveRankButton.Bind(wx.EVT_BUTTON, self.OnCurveRank)
@@ -276,7 +279,7 @@ class MainWindow(wx.Frame):
         self.fieldbar.Bind(wx.EVT_PAINT, self.fieldbar.OnPaint)
         self.fieldbar.Bind(wx.EVT_SIZE, self.fieldbar.OnResize)
         self.fieldbar.Bind(wx.EVT_LEFT_DOWN, self.fieldbar.OnLeftClick)
-        self.fieldbar.Bind(wx.EVT_RIGHT_DOWN, self.fieldbar.OnRightClick)
+        self.fieldbar.Bind(wx.EVT_RIGHT_DOWN, self.fieldbar.OnRightClick) #right clicks dont actually do anything, ATM.
         self.fieldbar.Bind(wx.EVT_LEFT_UP, self.fieldbar.OnLeftUnclick)
         self.fieldbar.Bind(wx.EVT_RIGHT_UP, self.fieldbar.OnRightUnclick)
         self.fieldbar.Bind(wx.EVT_MOTION, self.fieldbar.OnMouseMove)
@@ -357,6 +360,7 @@ class MainWindow(wx.Frame):
         self.rankNamePanel = wx.BoxSizer(wx.HORIZONTAL)
         self.rankNamePanel.Add(self.rankNameListPanel, 1, wx.EXPAND)
 
+        #TODO Make this a static Module level or Class level variable.
         self.commandAddChoices = ['MT', 'Hlt', 'FM', 'BM', 'RS', 'LS', 'Flat']
         self.commandAddButtons = []
 
@@ -419,7 +423,7 @@ class MainWindow(wx.Frame):
 
         self.animationCaption = wx.StaticText(self.panel, wx.ID_ANY, "Animation Controls")
 
-        self.playButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.Bitmap('icons/playicon.png'))
+        self.playButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.Bitmap('icons/playicon.png')) 
         self.playButton.Bind(wx.EVT_BUTTON, self.OnAnimationBegin)
         self.stopButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.Bitmap('icons/stopicon.png'))
         self.stopButton.Bind(wx.EVT_BUTTON, self.OnAnimationEnd)
@@ -485,6 +489,7 @@ class MainWindow(wx.Frame):
         self.animranks = None # list of animated rank locations when animating; None when not
         self.animtimer = wx.Timer(self, ID_ANIM_TIMER)
         wx.EVT_TIMER(self, ID_ANIM_TIMER, self.OnAnimationTimer)
+        
 
     def RefreshTitleBar(self):
         if self.filename is None:
@@ -506,7 +511,7 @@ class MainWindow(wx.Frame):
             item.SetText(m[1])
             item.SetImage(i)
 
-            self.moveSetList.Add(self.field.RenderSet(self.core.GetRanksGivenMove(i)))
+            self.moveSetList.Add(self.field.RenderSet(self.core.GetRanks(moveNumber = i))) #(Brady) changed from GetRanksGivenMove(i) to GetRanks(moveNumber=i)
 
             self.moveList.InsertItem(item)
 
@@ -518,7 +523,7 @@ class MainWindow(wx.Frame):
 
     def RefreshCurrentMove(self):
         curr = self.core.GetCurrentMove()[0]
-        self.moveSetList.Replace(curr, self.field.RenderSet(self.core.GetRanksGivenMove(curr)))
+        self.moveSetList.Replace(curr, self.field.RenderSet(self.core.GetRanks(moveNumber = curr)))
         self.moveList.RefreshItem(curr)
 
     def RefreshRankList(self):
@@ -531,10 +536,10 @@ class MainWindow(wx.Frame):
         i = 0
 
         for r in ranks:
-            if r[1] is not None:
+            if r[1] is not None: #checks the name
                 isSelected = False
 
-                for s in selected:
+                for s in selected:  #(Brady) This seems inefficient, try to fix
                     if r[0] == s[0]:
                         isSelected = True
 
@@ -620,7 +625,7 @@ class MainWindow(wx.Frame):
                 self.RefreshCommandList()
                 self.RefreshStatusBar()
 
-    def EditSong(self, event):
+    def EditSong(self, event): #try not having event.
         d = GUIDialogs.SongCreationDialog(self)
         if d.ShowModal() == 0:
             try:
@@ -811,11 +816,20 @@ class MainWindow(wx.Frame):
             #d.ShowModal()
             #d.Destroy()
             #return
-        n=0
-        while(n<len(ranks)):
-            if not self.core.IsRankHeld(ranks[n][0]): # if selected rank is not locked, just silently don't do anything
-                return
-            n=n+1
+        
+        #orig. code
+        #n=0                  
+        #while(n<len(ranks)):
+        #    if not self.core.IsRankHeld(ranks[n][0]): # if selected rank is not locked, just silently don't do anything
+        #        return
+        #    n=n+1
+#(Brady) Fixed: give a message that some ranks are not locked instead of doing nothing.
+        unlocked = [r for r in ranks if not self.core.IsRankHeld(r[0])] 
+        if unlocked != []:
+            d = wx.MessageDialog(self, "Rank(s) " + ", ".join([r[1] for r in unlocked]) + " are not locked.  Could not add command.", "Unlocked Ranks", wx.OK)
+            d.ShowModal()
+            #d.Destroy()
+            return
 
 # TODO check label and stuff
         type = self.commandAddSpecialChoices[i]
@@ -836,11 +850,10 @@ class MainWindow(wx.Frame):
                     type = "GTCCW"
 
                 type += str(pt)
-                n=0
-                while(n<len(ranks)):
-                    self.core.CommandAdded(ranks[n][0], type, index, length, None, None)
-                    n=n+1
-
+                
+                for r in ranks:
+                    self.core.CommandAdded(r[0], type, index, length, None, None) 
+                    
             f.Destroy()
 
         elif type == "PW":
@@ -852,11 +865,10 @@ class MainWindow(wx.Frame):
                     type = "PWCW"
                 else:
                     type = "PWCCW"
-                n=0
-                while(n<len(ranks)):
-                    self.core.CommandAdded(ranks[n][0], type, index, length, None, None)
-                    n=n+1
-
+                
+                for r in ranks:
+                    self.core.CommandAdded(r[0], type, index, length, None, None)
+                    
             f.Destroy()
 
         elif type == "Exp":
@@ -866,10 +878,8 @@ class MainWindow(wx.Frame):
                 (pt, length) = f.output
                 type += str(pt)
 
-                n=0
-                while(n<len(ranks)):
-                    self.core.CommandAdded(ranks[n][0], type, index, length, None, None)
-                    n=n+1
+                for r in ranks:
+                    self.core.CommandAdded(r[0], type, index, length, None, None)
 
             f.Destroy()
 
@@ -880,11 +890,9 @@ class MainWindow(wx.Frame):
                 (pt, length) = f.output
                 type += str(pt)
 
-                n=0
-                while(n<len(ranks)):
-                    self.core.CommandAdded(ranks[n][0], type, index, length, None, None)
-                    n=n+1
-
+                for r in ranks:
+                    self.core.CommandAdded(r[0], type, index, length, None, None)
+                   
             f.Destroy()
 
         elif type == "DTP" or type == "Curv":
@@ -940,11 +948,19 @@ class MainWindow(wx.Frame):
             #d.Destroy()
             #return
 
-        n=0
-        while(n<len(ranks)):
-            if not self.core.IsRankHeld(ranks[n][0]): # if selected rank is not locked, just silently don't do anything
-                return
-            n=n+1
+        #orig. Code
+        #n=0
+        #while(n<len(ranks)):
+        #    if not self.core.IsRankHeld(ranks[n][0]): # if selected rank is not locked, just silently don't do anything
+        #        return
+        #    n=n+1
+		#(Brady) add dialog to tell you its not locked.
+        unlocked = [r for r in ranks if not self.core.IsRankHeld(r[0])] 
+        if unlocked != []:
+            d = wx.MessageDialog(self, "Ranks " + ", ".join([r[1] for r in unlocked]) + " are not locked.  Could not add command.", "Unlocked Ranks", wx.OK)
+            d.ShowModal()
+            d.Destroy()
+            return
 
         try:
             length = int(self.commandLengthText.GetValue())
@@ -1068,10 +1084,10 @@ class MainWindow(wx.Frame):
 
     def OnOpen(self, event):
         """ Load file """
-        self.dirname = ''
+        dirname = ''
 
         while True:
-            d = wx.FileDialog(self, "Open File", self.dirname, "", "*.panda", wx.OPEN)
+            d = wx.FileDialog(self, "Open File", dirname, "", "*.panda", wx.OPEN)
             if d.ShowModal() == wx.ID_OK:
                 self.filename = os.path.join(d.GetDirectory(), d.GetFilename())
                 if self.core.Load(self.filename) == -1: # load failed
@@ -1101,8 +1117,8 @@ class MainWindow(wx.Frame):
 
     def OnSaveAs(self, event):
         """ Save current file under new name """
-        self.dirname = ''
-        d = wx.FileDialog(self, "Save File", self.dirname, "", "*.panda", wx.SAVE)
+        dirname = ''
+        d = wx.FileDialog(self, "Save File", dirname, "", "*.panda", wx.SAVE)
         if d.ShowModal() == wx.ID_OK:
             self.filename = os.path.join(d.GetDirectory(), d.GetFilename())
             self.core.Save(self.filename)
@@ -1113,8 +1129,8 @@ class MainWindow(wx.Frame):
 
     def OnSavePdf(self, event):
         """ Save current file under new name """
-        self.dirname = ''
-        d = wx.FileDialog(self, "Save File", self.dirname, "", "*.pdf", wx.SAVE)
+        dirname = ''
+        d = wx.FileDialog(self, "Save File", dirname, "", "*.pdf", wx.SAVE)
         if d.ShowModal() == wx.ID_OK:
             self.filename = os.path.join(d.GetDirectory(), d.GetFilename())
         d.Destroy()
@@ -1135,7 +1151,7 @@ class MainWindow(wx.Frame):
             moveNames = []
             commandStrings = []
             measureInfo = []
-	    movetexts=[]#[text, overwrite? boolean] tuple list
+            movetexts=[]#[text, overwrite? boolean] tuple list
             i=0
             while (i < len(moveList)):
                 self.core.ChangeMove(i)
@@ -1143,14 +1159,14 @@ class MainWindow(wx.Frame):
                 commandStrings.append(self.core.GetCommandStrings())
                 moveNames.append(moveList[i][1])
                 measureInfo.append(self.core.GetMoveInfo(i))
-		if (self.core.GetMoveTextOverwrite() is None):
-		    movetexts.append([self.core.GetMoveText(),False])
-		else:
-		    movetexts.append([self.core.GetMoveTextOverwrite(),True])
-                #columnsArr.append(int(d.columnInput.GetValue()))
+                if (self.core.GetMoveTextOverwrite() is None):
+                    movetexts.append([self.core.GetMoveText(),False])
+                else:
+                    movetexts.append([self.core.GetMoveTextOverwrite(),True])
+                        #columnsArr.append(int(d.columnInput.GetValue()))
                 i= i+1
             #try:
-	    Printer.printDrill(self.core.GetSong(), filename, moveNames, commandStrings,
+            Printer.printDrill(self.core.GetSong(), filename, moveNames, commandStrings,
                                    int(d.fontText.GetValue()), d.output[1], measureInfo, movetexts)
             #except Exception:
             #    d = wx.MessageDialog(self, "File Error!", "File Error", wx.OK)
@@ -1162,11 +1178,11 @@ class MainWindow(wx.Frame):
         
     def OnIndividualExport(self, event):
         moveNames=[]
-	measureInfo=[]
+        measureInfo=[]
         i=0
         while(i<len(self.core.GetMoves())):
             moveNames.append(self.core.GetMoves()[i][1])
-	    measureInfo.append(self.core.GetMoveInfo(i))
+            measureInfo.append(self.core.GetMoveInfo(i))
             i=i+1
         d = GUIDialogs.ExportIndDialog(self)
         if d.ShowModal() == 0:
@@ -1175,8 +1191,8 @@ class MainWindow(wx.Frame):
             rankStrings = self.core.GetRankStrings()
 
             try:
-		Printer.printInd(self.core.GetSong(), filename, moveNames, rankStrings, 
-	                     int(d.fontText.GetValue()), int(d.columnInput.GetValue()), measureInfo)
+                Printer.printInd(self.core.GetSong(), filename, moveNames, rankStrings, 
+                         int(d.fontText.GetValue()), int(d.columnInput.GetValue()), measureInfo)
 
             except Exception:
                 d = wx.MessageDialog(self, "File Error!", "File Error", wx.OK)
@@ -1231,13 +1247,30 @@ class MainWindow(wx.Frame):
     def OnHoldRank(self, event):
         ranks = self.core.GetSelectedRanks()
 
+        #(Brady) Fixing needing to individually unlock ranks.  For now just a simple dialog listing all ranks, but maybe will add 
+        #sort of menu to select individual ranks if needed...
+        
+		#orig. code
+        #for r in ranks:
+        #    if self.core.IsRankHeld(r[0]):
+        #        d = wx.MessageBox("Are you sure you want to unlock rank " + r[1] + "?", "Unlock Rank", wx.YES_NO, self)
+         #       if d == wx.YES:
+         #           self.core.RankUnlocked(r[0])
+          #  else:
+          #      self.core.RankLocked(r[0])
+        
+        locked = []
         for r in ranks:
             if self.core.IsRankHeld(r[0]):
-                d = wx.MessageBox("Are you sure you want to unlock rank " + r[1] + "?", "Unlock Rank", wx.YES_NO, self)
-                if d == wx.YES:
-                    self.core.RankUnlocked(r[0])
+                locked.append(r)
             else:
                 self.core.RankLocked(r[0])
+        if locked != []:
+            d = wx.MessageBox("Are you sure you want to unlock rank(s) " + ", ".join([r[1] for r in locked]) + "?", "Unlock Rank", wx.YES_NO, self)
+            if d == wx.YES:
+                for r in locked:
+                    self.core.RankUnlocked(r[0])
+            
 
         self.RefreshRankList()
         self.RefreshCommandList()

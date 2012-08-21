@@ -87,16 +87,16 @@ class Song(object):
         i = 0
         stop = False
         while ((i < len(self._moveList)) and (not stop)):
-            if (self._moveList[i].GetStartCount() > startCount):
+            if (self._moveList[i].GetStartCount() > startCount): #find move that starts after startCount
                 stop = True
             else:
                 i = i + 1
-        if (i > 0):
-            if ((self._moveList[i - 1].GetStartCount() + self._moveList[i - 1].GetLength()) > startCount):
+        if (i > 0):           #if move before i, would overlap with the startCount, return none 
+            if ((self._moveList[i - 1].GetStartCount() + self._moveList[i - 1].GetLength()) > startCount): 
                 return None
 
         if (i < len(self._moveList)):
-            if (self._moveList[i].GetStartCount() < endCount):
+            if (self._moveList[i].GetStartCount() < endCount): #if move i starts before endCount 
                 return None
         prior = None
         following = None
@@ -369,7 +369,8 @@ class Song(object):
 
     def AnimationStep(self):
         if (not self.animating):
-            return (None, 0)
+            print("not self.animating") #(Brady) debug
+            return (None, 0, 0) #(Brady) added the last 0 to fix error unpacking tuple (try other values to see if it has any effect)
         if (self.songLoaded):
             time = self.timeOffset + pygame.mixer.music.get_pos()
             count = self.ConvertTimeToCount(time)

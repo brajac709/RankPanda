@@ -145,11 +145,11 @@ class SplineGenerator:
         NUMBERPERSTEP = 8
         lengths = SplineGenerator.GetLengths(splineList)
         i = 0
-# Ignore and feel free to remove the next lines, I think they're repetitiions of the GetLengths() function.
-#        while (i < len(splineList)):
-#            lengths.append(SplineGenerator.GetLength(splineList[i], 0.001))
-#            i = i + 1
-#        i = 0
+    # Ignore and feel free to remove the next lines, I think they're repetitiions of the GetLengths() function.
+    #        while (i < len(splineList)):
+    #            lengths.append(SplineGenerator.GetLength(splineList[i], 0.001))
+    #            i = i + 1
+    #        i = 0
         listOfPointLists = []
         while (i < len(splineList)):
             total = NUMBERPERSTEP*lengths[i]

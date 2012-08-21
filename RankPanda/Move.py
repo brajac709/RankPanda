@@ -11,16 +11,16 @@ class Move(object):
     def __init__(self, startCount, length, prior, following, number):
         self._startCount = startCount
         self._length = length
-        self._idRankIndex = dict()
-        self._nameRankIndex = dict()
+        self._idRankIndex = dict()  #maps rank ID to rank object
+        self._nameRankIndex = dict()  #maps rank name to rank object
         self._RankIDGen = RankIDGen.RankIDGen()
         self._name = None
         self._number = None
         self.SetNumber(number)
         self._prior = prior
         self._following = following
-        self._listOfActiveRanks = []
-        self._listOfActiveCommands = []
+        self._listOfActiveRanks = []   #selected ranks
+        self._listOfActiveCommands = []  #selected commands
         self._moveText = None
         self._moveTextOverwrite = None
 
@@ -60,7 +60,7 @@ class Move(object):
         if (number is not None and
                 ((self._name is None) or
                 (self._name == ('Move ' + str(self._number))))):
-            self._name = ('Move ' + str(number))
+            self._name = ('Move ' + str(number))   #If the move has a nonstandard name (not 'Move' + num), dont change it.
         self._number = number
 
     def GetName(self):
@@ -126,7 +126,7 @@ class Move(object):
 
     def NameRank(self, ID, name):
         """Set the name of a rank in this move."""
-        if (self.LookUpName(name) is None):
+        if (self.LookUpName(name) is None):  #doesnt allow you to change name?
             r = self._idRankIndex[ID]
             if (r.GetName() in self._nameRankIndex):
                 del self._nameRankIndex[r.GetName()]
