@@ -77,24 +77,11 @@ class Move(object):
         self._prior = newPrior
         self.UpdateAllRanksCommandList()
 
-    # TODO(astory): make sane
     def GetAllRanks(self):
-        allRanks = []
-        i = 0
-        items = self._idRankIndex.items()
-        while (i < len(items)):
-            allRanks.append(items[i][1])
-            i = i + 1
-        return allRanks
-
+        return self._idRankIndex.values()
+    
     def GetAllNamedRanks(self):
-        allNamedRanks = []
-        i = 0
-        items = self._nameRankIndex.items()
-        while (i < len(items)):
-            allNamedRanks.append(items[i][1])
-            i = i + 1
-        return allNamedRanks
+        return self._nameRankIndex.values()
 
     # Shortcut
     def UpdateAllRanksCommandList(self):

@@ -137,7 +137,7 @@ class SongCreationDialog(wx.Dialog):
         count = self.inputList.GetItemCount()
         i = 0
         while i < count:
-            val = int(self.inputList.GetItemText(i))
+            val = int(self.inputList.GetItemText(i)) #this gets the first column
             if val == fromMeasure: # found our measure
                 self.countsPerMeasureList[i] = (fromMeasure, countsPerMeasure)
                 self.countsPerStepList[i] = (fromMeasure, countsPerStep)
@@ -743,36 +743,49 @@ class AddWaypointDialog(wx.Dialog):
             d.ShowModal()
             d.Destroy()
             return
+        
+        #If no entry is given for the time, assume it is zero
+        min = self.minText.GetValue()
+        if min == "":
+            min = 0
+        else:
+            try:
+                min = int(min)
+                if min < 0:
+                    raise Exception # so we trigger the dialog below
+            except Exception:
+                d = wx.MessageDialog(self, "Invalid entry for Minutes!", "Parse Error", wx.OK)
+                d.ShowModal()
+                d.Destroy()
+                return
 
-        try:
-            min = int(self.minText.GetValue())
-            if min < 0:
-                raise Exception # so we trigger the dialog below
-        except Exception:
-            d = wx.MessageDialog(self, "Invalid entry for Minutes!", "Parse Error", wx.OK)
-            d.ShowModal()
-            d.Destroy()
-            return
+        sec = self.secText.GetValue()
+        if sec == "":
+            sec = 0
+        else:
+            try:
+                sec = int(sec)
+                if sec < 0:
+                    raise Exception # so we trigger the dialog below
+            except Exception:
+                d = wx.MessageDialog(self, "Invalid entry for Seconds!", "Parse Error", wx.OK)
+                d.ShowModal()
+                d.Destroy()
+                return
 
-        try:
-            sec = int(self.secText.GetValue())
-            if sec < 0:
-                raise Exception # so we trigger the dialog below
-        except Exception:
-            d = wx.MessageDialog(self, "Invalid entry for Seconds!", "Parse Error", wx.OK)
-            d.ShowModal()
-            d.Destroy()
-            return
-
-        try:
-            msec = int(self.msecText.GetValue())
-            if msec < 0:
-                raise Exception # so we trigger the dialog below
-        except Exception:
-            d = wx.MessageDialog(self, "Invalid entry for Milliseconds!", "Parse Error", wx.OK)
-            d.ShowModal()
-            d.Destroy()
-            return
+        msec = self.msecText.GetValue()
+        if msec == "":
+            msec = 0
+        else:
+            try:
+                msec = int(msec)
+                if msec < 0:
+                    raise Exception # so we trigger the dialog below
+            except Exception:
+                d = wx.MessageDialog(self, "Invalid entry for Milliseconds!", "Parse Error", wx.OK)
+                d.ShowModal()
+                d.Destroy()
+                return
 
         time = 60000 * min + 1000 * sec + msec
 
@@ -791,7 +804,7 @@ class AddText(wx.Dialog):
 # begin layout code
         self.textCtrl = wx.TextCtrl(self, wx.ID_OK, "", style = wx.TE_MULTILINE)
         self.textCtrl.SetValue(text)
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "OK")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -819,11 +832,11 @@ class AddText(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)		
+        self.EndModal(-1)        
 
-		
-		
-		
+        
+        
+        
 class GateTurnDialog(wx.Dialog):
     """ Dialog for specifying Gate Turn details.  """
 
@@ -837,21 +850,21 @@ class GateTurnDialog(wx.Dialog):
         self.directionRadioBox = wx.RadioBox(self, wx.ID_ANY, "Direction", choices = self.directionChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.directionRadioBox.SetSelection(0) # clockwise selected by default
         self.directionPanel.Add(self.directionRadioBox, 1)
-		
+        
         self.pivotPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.pivotChoices = ['At arrow               ', 'At point']
         #self.pivotChoicesValues = [0, 1]
         self.pivotRadioBox = wx.RadioBox(self, wx.ID_ANY, "Non-Pivot Point", choices = self.pivotChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.pivotRadioBox.SetSelection(0) # arrow selected by default
-        self.pivotPanel.Add(self.pivotRadioBox, 1)	
-	
+        self.pivotPanel.Add(self.pivotRadioBox, 1)    
+    
         self.lengthPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.lengthLabel = wx.StaticText(self, wx.ID_ANY, "Length: ")
         self.lengthText = wx.TextCtrl(self, wx.ID_ANY, "", size = (100, 25))
         self.lengthPanel.Add(self.lengthLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.lengthPanel.Add(self.lengthText)
 
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Add Command")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -876,7 +889,7 @@ class GateTurnDialog(wx.Dialog):
         self.panelSizer.Add(self.lengthPanel, 0, wx.ALIGN_LEFT)
         self.panelSizer.Add((1,25), 0, wx.ALIGN_LEFT)
         self.panelSizer.Add(self.buttonSizer, 0, wx.ALIGN_LEFT)
-		
+        
         self.wholePanel.Add((100,25), 0, wx.ALIGN_LEFT)
         self.wholePanel.Add(self.panelSizer)
 
@@ -901,9 +914,9 @@ class GateTurnDialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)		
-		
-		
+        self.EndModal(-1)        
+        
+        
 
 
 
@@ -921,14 +934,14 @@ class PinwheelDialog(wx.Dialog):
         self.directionRadioBox = wx.RadioBox(self, wx.ID_ANY, "Direction", choices = self.directionChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.directionRadioBox.SetSelection(0) # clockwise selected by default
         self.directionPanel.Add(self.directionRadioBox, 1)
-	
+    
         self.lengthPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.lengthLabel = wx.StaticText(self, wx.ID_ANY, "Length: ")
         self.lengthText = wx.TextCtrl(self, wx.ID_ANY, "", size = (100, 25))
         self.lengthPanel.Add(self.lengthLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.lengthPanel.Add(self.lengthText)
 
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Add Command")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -970,7 +983,7 @@ class PinwheelDialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)	
+        self.EndModal(-1)    
 
 
 
@@ -988,15 +1001,15 @@ class FTADialog(wx.Dialog):
         self.pivotChoicesValues = [0, 1]
         self.pivotRadioBox = wx.RadioBox(self, wx.ID_ANY, "Leading Point", choices = self.pivotChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.pivotRadioBox.SetSelection(0) # arrow selected by default
-        self.pivotPanel.Add(self.pivotRadioBox, 1)	
-	
+        self.pivotPanel.Add(self.pivotRadioBox, 1)    
+    
         self.lengthPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.lengthLabel = wx.StaticText(self, wx.ID_ANY, "Length: ")
         self.lengthText = wx.TextCtrl(self, wx.ID_ANY, "", size = (100, 25))
         self.lengthPanel.Add(self.lengthLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.lengthPanel.Add(self.lengthText)
 
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Add Command")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -1038,11 +1051,11 @@ class FTADialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)	
+        self.EndModal(-1)    
 
 
 
-		
+        
 
 
 class ExpandDialog(wx.Dialog):
@@ -1057,15 +1070,15 @@ class ExpandDialog(wx.Dialog):
         self.pivotChoicesValues = [0, 1]
         self.pivotRadioBox = wx.RadioBox(self, wx.ID_ANY, "Moving Point", choices = self.pivotChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.pivotRadioBox.SetSelection(0) # arrow selected by default
-        self.pivotPanel.Add(self.pivotRadioBox, 1)	
-	
+        self.pivotPanel.Add(self.pivotRadioBox, 1)    
+    
         self.lengthPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.lengthLabel = wx.StaticText(self, wx.ID_ANY, "Length: ")
         self.lengthText = wx.TextCtrl(self, wx.ID_ANY, "", size = (100, 25))
         self.lengthPanel.Add(self.lengthLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.lengthPanel.Add(self.lengthText)
 
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Add Command")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -1107,10 +1120,10 @@ class ExpandDialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)	
+        self.EndModal(-1)    
 
-		
-		
+        
+        
 
 
 class CondenseDialog(wx.Dialog):
@@ -1125,15 +1138,15 @@ class CondenseDialog(wx.Dialog):
         self.pivotChoicesValues = [0, 1]
         self.pivotRadioBox = wx.RadioBox(self, wx.ID_ANY, "Moving Point", choices = self.pivotChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.pivotRadioBox.SetSelection(0) # arrow selected by default
-        self.pivotPanel.Add(self.pivotRadioBox, 1)	
-	
+        self.pivotPanel.Add(self.pivotRadioBox, 1)    
+    
         self.lengthPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.lengthLabel = wx.StaticText(self, wx.ID_ANY, "Length: ")
         self.lengthText = wx.TextCtrl(self, wx.ID_ANY, "", size = (100, 25))
         self.lengthPanel.Add(self.lengthLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.lengthPanel.Add(self.lengthText)
 
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Add Command")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -1175,7 +1188,7 @@ class CondenseDialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)	
+        self.EndModal(-1)    
 
 
 
@@ -1188,14 +1201,14 @@ class DTPDialog(wx.Dialog):
         wx.Dialog.__init__(self, parent, wx.ID_ANY, "Add DTP Command", size = (400, 150))
 
 # begin layout code
-	
+    
         self.lengthPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.lengthLabel = wx.StaticText(self, wx.ID_ANY, "Length: ")
         self.lengthText = wx.TextCtrl(self, wx.ID_ANY, "", size = (100, 25))
         self.lengthPanel.Add(self.lengthLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.lengthPanel.Add(self.lengthText)
 
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Continue")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -1235,10 +1248,10 @@ class DTPDialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)	
+        self.EndModal(-1)    
 
 
-	
+    
 
 
 class CurveDialog(wx.Dialog):
@@ -1248,14 +1261,14 @@ class CurveDialog(wx.Dialog):
         wx.Dialog.__init__(self, parent, wx.ID_ANY, "Add Curve Command", size = (400, 150))
 
 # begin layout code
-	
+    
         self.lengthPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.lengthLabel = wx.StaticText(self, wx.ID_ANY, "Length: ")
         self.lengthText = wx.TextCtrl(self, wx.ID_ANY, "", size = (100, 25))
         self.lengthPanel.Add(self.lengthLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.lengthPanel.Add(self.lengthText)
 
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Continue")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -1295,8 +1308,8 @@ class CurveDialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)	
-	
+        self.EndModal(-1)    
+    
 class ExportPDFDialog(wx.Dialog):
     """ Dialog for Exporting to PDF  """
 
@@ -1426,13 +1439,13 @@ class ExportIndDialog(wx.Dialog):
         self.fontPanel.Add(self.fontLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
         self.fontPanel.Add(self.fontText)
 
-		
+        
         self.columnPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.columnLabel = wx.StaticText(self, wx.ID_ANY, "# of Columns per Page: ")
         self.columnPanel.Add(self.columnLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTRE_VERTICAL)
-        self.columnInput = wx.SpinCtrl(self, wx.ID_ANY, size=(100,25), min = 1, max = 10, initial = 3)		
+        self.columnInput = wx.SpinCtrl(self, wx.ID_ANY, size=(100,25), min = 1, max = 10, initial = 3)        
         self.columnPanel.Add(self.columnInput)
-		
+        
         self.okButton = wx.Button(self, wx.ID_OK, "Export to PDF")
         self.okButton.SetDefault()
         self.okButton.Bind(wx.EVT_BUTTON, self.OnOK)
@@ -1486,7 +1499,7 @@ class ExportIndDialog(wx.Dialog):
         self.EndModal(0)
 
     def OnCancel(self, event):
-        self.EndModal(-1)	
+        self.EndModal(-1)    
         
         
 class ProgramOptionsDialog(wx.Dialog):

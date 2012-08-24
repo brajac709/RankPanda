@@ -4,6 +4,15 @@ import Commands
 import Point
 import pprint
 
+#(Brady) matches command names to function references to call in AddBasicCommand()
+commandHash = {"MarkTime": Commands.MarkTime, "MT": Commands.MarkTime, "ForwardMarch":Commands.ForwardMarch, "FM":Commands.ForwardMarch,
+               "BackMarch":Commands.BackMarch, "BM":Commands.BackMarch, "RightSlide":Commands.RightSlide, "RS":Commands.RightSlide,
+               "LeftSlide":Commands.LeftSlide, "LS":Commands.LeftSlide, "GTCCW0":Commands.GTCCW0, "GTCW0":Commands.GTCW0,
+               "GTCCW1":Commands.GTCCW1, "GTCW1":Commands.GTCW1, "PWCCW":Commands.PWCCW, "PWCW":Commands.PWCW,
+               "Expand0":Commands.Expand0, "Exp0":Commands.Expand0, "Expand1":Commands.Expand1, "Exp1":Commands.Expand1,
+               "Condense0":Commands.Condense0, "Cond0":Commands.Condense0, "Condense1":Commands.Condense1, "Cond1":Commands.Condense1,
+               "Flatten":Commands.Flatten, "Flat":Commands.Flatten}
+
 class Rank(object):
     def __init__(self, endLocation, move):
         self._endLocation = endLocation
@@ -224,7 +233,7 @@ class Rank(object):
     # TODO(astory): this might be superfluous since GetCalculatedLocation never
     # returns none AFAICT
     def GetLocationAtCount(self, count):
-        """Returns the rank's location at a the given count"""
+        """Returns the rank's location at the given count"""
         loc = self.GetCalculatedLocation(count)
         if (loc is None):
             loc = self.GetEndLocation()
@@ -255,39 +264,9 @@ class Rank(object):
             beginLocation = self.GetPrior().GetEndLocation()
         else:
             beginLocation = self._commandList[number - 1].GetEndLocation()
-        # TODO(astory): this should be done with a hash defined once
-        if ((commandName == "MarkTime") or (commandName == "MT")):
-            newCommand = Commands.MarkTime(length, beginLocation)
-        elif ((commandName == "ForwardMarch") or (commandName == "FM")):
-            newCommand = Commands.ForwardMarch(length, beginLocation)
-        elif ((commandName == "BackMarch") or (commandName == "BM")):
-            newCommand = Commands.BackMarch(length, beginLocation)
-        elif ((commandName == "RightSlide") or (commandName == "RS")):
-            newCommand = Commands.RightSlide(length, beginLocation)
-        elif ((commandName == "LeftSlide") or (commandName == "LS")):
-            newCommand = Commands.LeftSlide(length, beginLocation)
-        elif (commandName == "GTCCW0"):
-            newCommand = Commands.GTCCW0(length, beginLocation)
-        elif (commandName == "GTCW0"):
-            newCommand = Commands.GTCW0(length, beginLocation)
-        elif (commandName == "GTCCW1"):
-            newCommand = Commands.GTCCW1(length, beginLocation)
-        elif (commandName == "GTCW1"):
-            newCommand = Commands.GTCW1(length, beginLocation)
-        elif (commandName == "PWCCW"):
-            newCommand = Commands.PWCCW(length, beginLocation)
-        elif (commandName == "PWCW"):
-            newCommand = Commands.PWCW(length, beginLocation)
-        elif ((commandName == "Expand0") or (commandName == "Exp0")):
-            newCommand = Commands.Expand0(length, beginLocation)
-        elif ((commandName == "Expand1") or (commandName == "Exp1")):
-            newCommand = Commands.Expand1(length, beginLocation)
-        elif ((commandName == "Condense0") or (commandName == "Cond0")):
-            newCommand = Commands.Condense0(length, beginLocation)
-        elif ((commandName == "Condense1") or (commandName == "Cond1")):
-            newCommand = Commands.Condense1(length, beginLocation)
-        elif ((commandName == "Flatten") or (commandName == "Flat")):
-            newCommand = Commands.Flatten(length, beginLocation)
+        
+		#(Brady) simplified this by adding a dictionary to hash names to the function
+        newCommand = commandHash[commandName](length, beginLocation) #May want to catch a KeyError in case of typo or something...
 
         self._commandList.insert(number, newCommand)
         if (name is not None):
