@@ -651,20 +651,19 @@ class Rank(object):
     # Same with GT/PW.
     def _GenerateCommandListStraightLine(self, beginLocation, endLocation,\
             length, commandListSoFar):
-        begin0 = beginLocation.GetListOfPoints()[0]
-        begin1 = beginLocation.GetListOfPoints()[-1]
+        begin0 = beginLocation.GetListOfPoints()[0]  #(Brady) "Left" end 
+        begin1 = beginLocation.GetListOfPoints()[-1] #(Brady) "Right" end (i think...)
         end0 = endLocation.GetListOfPoints()[0]
         end1 = endLocation.GetListOfPoints()[-1]
         endMid = endLocation.GetMidPoint()
         beginMid = beginLocation.GetMidPoint()
         #LMD change to round
         beginLength = int(round(math.sqrt(\
-            (begin1.x - begin0.x)*(begin1.x - begin0.x)\
-            + (begin1.y - begin0.y)*(begin1.y - begin0.y))))
+            (begin1.x - begin0.x)**2 + (begin1.y - begin0.y)**2)))
         #LMD change to round
         endLength = int(round(math.sqrt(\
-            (end1.x - end0.x)*(end1.x - end0.x)\
-            + (end1.y - end0.y)*(end1.y - end0.y))))
+            (end1.x - end0.x)**2 + (end1.y - end0.y)**2)))
+		#(Brady) Pretty sure this assumes that in usually ranks are 16 steps long (which is generally true)
         if (beginLength != 16):
             newMid1x = (begin1.x - begin0.x)*(8/beginLength) + begin0.x
             newMid1y = (begin1.y - begin0.y)*(8/beginLength) + begin0.y

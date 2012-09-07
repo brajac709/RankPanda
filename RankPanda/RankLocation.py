@@ -102,10 +102,10 @@ class RankLocation(object):
                 self._listOfSlopes = listOfSlopes
 
             self._splineFunctions = \
-                CHS.SplineGenerator.GetSplines(self._listOfPoints,
+                CHS.GetSplines(self._listOfPoints,
                                                self._listOfSlopes)
             self._drawingPoints = \
-                CHS.SplineGenerator.GetPoints(self._splineFunctions)
+                CHS.GetPoints(self._splineFunctions)
         else:
             self._listOfSlopes = None
             self._splineFunctions = None
@@ -132,7 +132,7 @@ class RankLocation(object):
 
     def _Respline(self):
         self._splineFunctions = \
-            CHS.SplineGenerator.GetSplines(self._listOfPoints,
+            CHS.GetSplines(self._listOfPoints,
                                            self._listOfSlopes)
 
     def GetPointAtT(self, t, number):
@@ -153,8 +153,8 @@ class RankLocation(object):
             y = pfirst.y + t*(psecond.y - pfirst.y)
             return Point.Point(x,y)
         else:
-            x = CHS.SplineGenerator.EvalCubic(t, self._splineFunctions[number][0])
-            y = CHS.SplineGenerator.EvalCubic(t, self._splineFunctions[number][1])
+            x = CHS.EvalCubic(t, self._splineFunctions[number][0])
+            y = CHS.EvalCubic(t, self._splineFunctions[number][1])
             return Point.Point(x,y)
 
 
@@ -175,7 +175,7 @@ class RankLocation(object):
 
         if (not self.IsStraight()):
             if (self.curved):
-                return CHS.SplineGenerator.GetInformationAtLengthFraction(self._splineFunctions, lengthFraction)
+                return CHS.GetInformationAtLengthFraction(self._splineFunctions, lengthFraction)
 
         lengths = self.GetLengths()
         totalLength = sum(lengths)
@@ -223,7 +223,7 @@ class RankLocation(object):
         """
         if (not self.IsStraight()):
             if (self.curved):
-                return CHS.SplineGenerator.GetLengths(
+                return CHS.GetLengths(
                         self._splineFunctions)
         i = 1
         lengths = []

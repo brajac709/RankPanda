@@ -789,6 +789,7 @@ class CoreWrapper(object):
             return None
         self._song.currentMove.LookUpID(rankID).DeleteSplinePoint(number)
 
+	#(Brady) TODO: prevent changing name if not on the very first move.
     # Pass in the ID of the rank to name, and its new name.
     def NameRank(self, name):
         if (self._song.currentMove is None):

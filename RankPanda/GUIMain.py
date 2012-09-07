@@ -1306,6 +1306,10 @@ class MainWindow(wx.Frame):
         self.RefreshRankList()
         self.RefreshCommandList()
 
+    #TODO: (Brady) Make a select all button:  OnSelectAll(self, event)
+
+
+
     def OnSnapEnd(self, event):
         self.core.SnapEndLocations()
         self.field.Refresh(False)

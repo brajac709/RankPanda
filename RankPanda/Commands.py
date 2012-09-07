@@ -16,40 +16,40 @@ class Command(object):
 
     # Be sure to overwrite this in each Command!
     def CalcLocation(self, count, beginLocation):
-        ''' Given the beginning location, calculates the location that the
+        """ Given the beginning location, calculates the location that the
          rank should be in after count counts.  Uses information such as
          self._delta and the command type, but does NOT use
-         self.endLocation. '''
+         self.endLocation. """
         return beginLocation
 
     
 
     # Be sure to overwrite this in each Command!
     def Split(self, count, beginLocation):
-        ''' Splits the command in two, at the specified count.  Changes this command
+        """ Splits the command in two, at the specified count.  Changes this command
          to be the appropriate length, and returns this command as well as the
-         new one.'''
+         new one."""
         pass
 
     
     def GetName(self):
-        ''' Returns the current value of the self._name field.'''
+        """ Returns the current value of the self._name field."""
         return self._name
 
     
     def SetName(self, name):
-        ''' Sets the value of the self._name field.'''
+        """ Sets the value of the self._name field."""
         self._name = name
 
     
     def GetLength(self):
-        ''' Returns the number of counts this command spans.  If you want to change
-         this value, make a new command instead.'''
+        """Returns the number of counts this command spans.  If you want to change
+         this value, make a new command instead."""
         return round(self._length)
 
     
     def GetEndLocation(self):
-        ''' Simple getter, in case the beginning location isn't readily available.'''
+        """Simple getter, in case the beginning location isn't readily available."""
         return self._endLocation
 
     def SnapEndLocation(self, newBeginLocation):
@@ -59,17 +59,17 @@ class Command(object):
 
     # Be sure to overwrite this in each Command!
     def CalcBeginLocation(self, count, endLocation):
-        ''' From the ending location, calculate the beginning location.  Will require
+        """From the ending location, calculate the beginning location.  Will require
          basically the same implementation as CalcLocation(), but in reverse.
          count should be the location in the whole command you want it to be
-         returned.  So, pass in 0 to run the whole command.'''
+         returned.  So, pass in 0 to run the whole command."""
         return None
 
     
 
     def MergeWithFollowing(self, following):
-        ''' Checks following to see if it's a command of the same name.  If so,
-         return the merged commands.'''
+        """ Checks following to see if it's a command of the same name.  If so,
+         return the merged commands."""
         if ((following._name == self._name) and (isinstance(following, self))):
             self._length = self._length + following._length
             self._endLocation = following._endLocation
