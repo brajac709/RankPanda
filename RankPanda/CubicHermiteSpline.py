@@ -272,8 +272,8 @@ def GetInformationAtLengthFraction(splineList, lengthFraction):
     if lengthNeeded <= 0.1:
         t = 0
     else:
-        #t = _GetTValueAtLengthHelper(splineList[i], lengthNeeded, 0, 1, 0.001, 0.001)
-        #TODO MAKE SURE THIS WORKS!!!!
+        # t = _GetTValueAtLengthHelper(splineList[i], lengthNeeded, 0, 1, 0.001, 0.001)
+        # TODO(Brady): MAKE SURE THIS WORKS 100%!!!!
         t = GetTValueAtLengthHelper(splineList[i], lengthNeeded, 0, 1, 0.001, 0.001)
     x = EvalCubic(t, splineList[i][0])
     y = EvalCubic(t, splineList[i][1])
