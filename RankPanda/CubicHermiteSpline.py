@@ -1,5 +1,8 @@
 import math
 import Point
+import decimal
+
+D = decimal.Decimal
 
 
 # This class handles the creation of splines.
@@ -15,9 +18,6 @@ import Point
 # between each pair of points.  Further, the curves will all be smooth with
 # the one next to them, as the slopes are equal.
 # The splines are saved in a simple format; see below.
-
-# TODO(astory): convert to module level functions.  None of these actually take
-# advantage of, or have any reason for, being in a class.
 
 
 # This calculated what the slopes at the points should be for the splines.
@@ -42,8 +42,8 @@ def _GetSlope(PointTriple):
     else:
         pFirst = p0
         pSecond = p2
-    slopex = (n/float(2))*(pSecond.x - pFirst.x)
-    slopey = (n/float(2))*(pSecond.y - pFirst.y)
+    slopex = (n/2)*(pSecond.x - pFirst.x)
+    slopey = (n/2)*(pSecond.y - pFirst.y)
     return Point.Point(slopex, slopey)
 
 # The main splining method.  Takes in a list of points and their slopes,
@@ -95,43 +95,96 @@ def GetSplines(pointList, oldSlopeList):
 # to the length of the first one, return the length.  If not, recurse
 # and add the lengths together.
 def GetLength(fnList, tol):
-    return _GetLengthHelper(fnList, 0, 1, tol)
+    #return _GetLengthHelper(fnList, 0, 1, tol)
+    return GetLengthHelper(fnList, 0, 1, tol)
     
 def dist(p1, p2):
     """Calculates the euclidean distance between points p1 and p2
-    p1, p2 are a tuple of form (x,y)"""
+    p1, p2 are a tuple of form (x,y)
+    """
     return math.sqrt((p2[0]-p1[0])**2 + (p2[1] - p1[1])**2)
 
-#(Brady) Making it iterative (note it doesnt have underscore...)
-def GetLengthHelper(fnList, ti, tf, tol):
-#maybe use a stack??
-    xi = EvalCubic(ti, fnList[0])
-    yi = EvalCubic(ti, fnList[1])
-    xf = EvalCubic(tf, fnList[0])
-    yf = EvalCubic(tf, fnList[1])
-    tm = (ti + tf)/float(2)
+def findSideLengths(tif, fnList):
+    """Just a helper function to consolidate these actions. 
+    tif is a tuple (ti,tf).  returns a tuple (tm, side i-f, side i-m, side m-f)
+    """
+    xi = EvalCubic(tif[0], fnList[0])
+    yi = EvalCubic(tif[0], fnList[1])
+    xf = EvalCubic(tif[1], fnList[0])
+    yf = EvalCubic(tif[1], fnList[1])
+    tm = (tif[0] + tif[1])/float(2)
     xm = EvalCubic(tm, fnList[0])
     ym = EvalCubic(tm, fnList[1])
-    
-    side3 = dist((xi,yi), (xf,yf)) #from beginning to end
+    side3 = dist((xi,yi), (xf,yf)) #from beginning to end (TODO: make a check for this being zero)
     side1 = dist((xi,yi), (xm,ym)) #from middle to begining
     side2 = dist((xm,ym), (xf,yf)) #from middle to end
-    if ((math.fabs(((side1 + side2)/float(side3)) - 1)) <= tol):
-        return math.fabs(side1 + side2)
-    #essentially else
-    cumSideLeft = side1
-    cumSideRight = side2
-    while((math.fabs(((side1 + side2)/float(side3)) -1)) > tol):
-        try:
-            if ((math.fabs(((side1 + side2)/float(side3)) - 1)) <= tol):
-                return math.fabs(side1 + side2)
+    return (tm, side3, side1, side2)
+        
+#(Brady) Making it iterative (note it doesnt have underscore...)
+def GetLengthHelper(fnList, ti, tf, tol):
+#TODO: FIX IT!!! the "r" case is a little broken, sometimes need to pop twice, others not...
+    states = ["d", (ti,tf)] #a state is represented by a tuple of (ti, tf) for each phase 
+    #try using some sort of call address (probably a string in this case) to identify what type of state this is...
+    #"d" => done
+    address = "s" #i think i use "s" for start, or like base case, or something... basically still recursing. 
+    #import time  #for debugging....
+    while(len(states) > 0):
+        #time.sleep(.1) # Temp...
+        if address == "d":
+            returnValue = states.pop()
+        elif address == "l": #this is a lowercase L not a 1
+            val = states.pop()
+            p = states.pop()
+            tm, side3, side1, side2 = findSideLengths(p, fnList)
+            if ((math.fabs(((side1 + side2)/float(side3)) - 1 )) <= tol):
+                address = states.pop()
+                states.append(val + math.fabs(side1 + side2))
             else:
-                return (_GetLengthHelper(fnList, ti, tm, tol)) + (_GetLengthHelper(fnList, tm, tf, tol))
-        except:
+                states.append(val)
+                states.append("r")
+                states.append((tm,p[1]))
+                states.append("l")
+                states.append((p[0],tm))
+                address = "s"
+        elif address == "r":
+            val1 = states.pop()
+            val2 = states.pop()
+            if val2 == "d":
+                returnValue = val1 #should be the length.... otherwise, keep going
+                break
+            elif val2 == "l" or val2 == "r":  #not really sure if necessary, or right...
+                address = val2
+                states.append(val1)
+                continue 
+            address = states.pop()
+            address = states.pop() #need to pop twice...
+            states.append(val1 + val2)
+        elif address == "s":
+            #still recursing
+            p = states.pop()
+            tm, side3, side1, side2 = findSideLengths(p, fnList)
             if ((math.fabs(((side1 + side2)/float(side3)) - 1)) <= tol):
-                return math.fabs(side1 + side2)
+                #base case
+                address = states.pop()
+                states.append(math.fabs(side1 + side2)) #push the length of this segment.
+                #i think....
             else:
-                return (_GetLengthHelper(fnList, ti, tm, tol)) + (_GetLengthHelper(fnList, tm, tf, tol))
+                #push the 2 sides
+                #push "r", (tm,tf),"l", (ti,tm) tentatively
+                #address = "s"
+                states.append("r")
+                states.append((tm, p[1]))
+                states.append("l")
+                states.append((p[0],tm))
+                address = "s"
+        else:  #basically if the address is a number not a string.
+            val = states.pop()
+            newval = address + val
+            address = states.pop()
+            states.append(newval)
+        #print(states)
+        #print(address)
+    return returnValue
 
 # TODO:  Make iterative!  It'll help.
 def _GetLengthHelper(fnList, ti, tf, tol):
@@ -199,7 +252,7 @@ def GetPoints(splineList):
 # The index is which spline part the point in question lies along.
 
 # First, I get the lengths of each spline part.  I then go through and find
-# the total lenght along the splines needed, and find which spline part the
+# the total length along the splines needed, and find which spline part the
 # fraction will lie on.
 # I then find the t value at which we need, and then just find the point
 # and slope at tha t value.
@@ -219,7 +272,9 @@ def GetInformationAtLengthFraction(splineList, lengthFraction):
     if lengthNeeded <= 0.1:
         t = 0
     else:
-        t = _GetTValueAtLengthHelper(splineList[i], lengthNeeded, 0, 1, 0.001, 0.001)
+        #t = _GetTValueAtLengthHelper(splineList[i], lengthNeeded, 0, 1, 0.001, 0.001)
+        #TODO MAKE SURE THIS WORKS!!!!
+        t = GetTValueAtLengthHelper(splineList[i], lengthNeeded, 0, 1, 0.001, 0.001)
     x = EvalCubic(t, splineList[i][0])
     y = EvalCubic(t, splineList[i][1])
     dx = EvalSlopeOfCubic(t, splineList[i][0])
@@ -245,7 +300,8 @@ def GetLengths(splineList):
 # I believe.)
 def _GetTValueAtLengthHelper(fnList, length, tinit, tfinal, lengthCalcTol, lengthCompareTol):
     tmid = (tinit + tfinal) / float(2)
-    curLength = _GetLengthHelper(fnList, 0, tmid, lengthCalcTol)
+    #curLength = _GetLengthHelper(fnList, 0, tmid, lengthCalcTol)
+    curLength = GetLengthHelper(fnList, 0, tmid, lengthCalcTol)
     if (math.fabs((curLength / float(length)) - 1) < lengthCompareTol):
         return tmid
     else:
@@ -253,3 +309,23 @@ def _GetTValueAtLengthHelper(fnList, length, tinit, tfinal, lengthCalcTol, lengt
             return _GetTValueAtLengthHelper(fnList, length, tinit, tmid, lengthCalcTol, lengthCompareTol)
         else:
             return _GetTValueAtLengthHelper(fnList, length, tmid, tfinal, lengthCalcTol, lengthCompareTol)
+
+def GetTValueAtLengthHelper(fnList, length, tinit, tfinal, lengthCalcTol, lengthCompareTol):
+    """Iterative version of above.  Finds the midpoint of the current section of spline
+    and zeros in until the length desired is found.
+    """
+    stack = [(tinit, tfinal)]
+    while(len(stack) > 0):
+        tif = stack.pop()
+        tmid = (tif[0] + tif[1])/float(2)
+        curLength = GetLengthHelper(fnList, 0, tmid, lengthCalcTol)
+        if(math.fabs((curLength/float(length)) -1) < lengthCompareTol):
+            return tmid
+        else:
+        #NOTE: try using math.decimal package to avoid floating point errors at really small lengths.
+            if (curLength > length):
+                stack.append((tif[0], tmid))
+                #print("Length: " + str(curLength) + ", Point: " + str(stack[-1])) #debugging...
+            else:
+                stack.append((tmid, tif[1]))
+                #print("Length: " + str(curLength) + ", Point: " +str(stack[-1]))

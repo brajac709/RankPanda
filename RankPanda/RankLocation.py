@@ -102,8 +102,7 @@ class RankLocation(object):
                 self._listOfSlopes = listOfSlopes
 
             self._splineFunctions = \
-                CHS.GetSplines(self._listOfPoints,
-                                               self._listOfSlopes)
+                CHS.GetSplines(self._listOfPoints, self._listOfSlopes)
             self._drawingPoints = \
                 CHS.GetPoints(self._splineFunctions)
         else:
@@ -223,15 +222,14 @@ class RankLocation(object):
         """
         if (not self.IsStraight()):
             if (self.curved):
-                return CHS.GetLengths(
-                        self._splineFunctions)
+                return CHS.GetLengths(self._splineFunctions)
         i = 1
         lengths = []
         while (i < len(self._listOfPoints)):
             lengths.append(
                 math.sqrt(
                     (self._listOfPoints[i - 1].x - self._listOfPoints[i].x) *
-                    (self._listOfPoints[i - 1].x - self._listOfPoints[i].x) +
+                    (self._listOfPoints[i - 1].x - self._listOfPoints[i].x)
                     (self._listOfPoints[i - 1].y - self._listOfPoints[i].y) *
                     (self._listOfPoints[i - 1].y - self._listOfPoints[i].y)))
             i += 1

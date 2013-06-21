@@ -52,16 +52,8 @@ class CoreWrapper(object):
     # [(0, 'Move 0'), (1, 'Move 1'), ...]
     def GetMoves(self):
         listOfMoves = self._song.GetMoveList()
-        #(Brady) Trying list comprehension
         return [(curmove.GetNumber(), curmove.GetName()) for curmove in listOfMoves]
-        #Original Code
-        #i = 0   
-        #moveInfo = []
-        #while (i < len(listOfMoves)):
-         #   curmove = listOfMoves[i]
-          #  moveInfo.append((curmove.GetNumber(), curmove.GetName()))
-           # i = i + 1
-        #return moveInfo
+        
         
         
 
@@ -79,7 +71,6 @@ class CoreWrapper(object):
     # ?
     # List of all ranks in current move
     # [(id0, name0, location0), (id1, name1, location1)]
-	#(Brady) Merged next method with this
     def GetRanks(self, moveNumber = None):
         if (self._song.currentMove is None):
             return None
@@ -87,31 +78,9 @@ class CoreWrapper(object):
             allRanks = self._song.currentMove.GetAllRanks()
         else:
             allRanks = self._song.GetMoveList()[moveNumber].GetAllRanks()
-		#(Brady) List comprehensions
-        return [(r.GetID(), r.GetName(), r.GetEndLocation(), r.GetLabelLocation()) for r in allRanks]
-        #Orig. code
-        #i = 0                 
-        #allRankInfo = []
-        #while (i < len(allRanks)):
-        #    allRankInfo.append((allRanks[i].GetID(), allRanks[i].GetName(), allRanks[i].GetEndLocation(), allRanks[i].GetLabelLocation()))
-        #    i = i + 1
-        #return allRankInfo
-
-    #(Brady) merged with prev with optional args.  Keeping this so I dont have to change all the method calls.
-    # Same as above but now you input the move number.
-    def GetRanksGivenMove(self, moveNumber):
-	    return self.GetRanks(moveNumber)
-    #    if (self._song.currentMove is None):
-    #        return None
-    #    allRanks = self._song.GetMoveList()[moveNumber].GetAllRanks()
-    #    i = 0
-    #    allRankInfo = []
-    #    while (i < len(allRanks)):
-    #        allRankInfo.append((allRanks[i].GetID(), allRanks[i].GetName(), allRanks[i].GetEndLocation(), allRanks[i].GetLabelLocation()))
-    #        i = i + 1
-    #    return allRankInfo
-
-
+        return [(r.GetID(), r.GetName(), r.GetEndLocation(),\
+                r.GetLabelLocation()) for r in allRanks]
+    
     def IsRankHeld(self, ID):
         if (self._song.currentMove is None):
             return None
@@ -124,15 +93,8 @@ class CoreWrapper(object):
         if (self._song.currentMove is None):
             return None
         allSelectedRanks = self._song.currentMove.GetSelectedRanks()
-		#(Brady) List comp.
-        return [(r.GetID(), r.GetName(), r.GetEndLocation(), r.GetLabelLocation()) for r in allSelectedRanks]
-		#Orig. code
-        #i = 0             
-        #allSelectedRankInfo = []
-        #while (i < len(allSelectedRanks)):
-        #    allSelectedRankInfo.append((allSelectedRanks[i].GetID(), allSelectedRanks[i].GetName(), allSelectedRanks[i].GetEndLocation(), allSelectedRanks[i].GetLabelLocation()))
-        #    i = i + 1
-        #return allSelectedRankInfo
+        return [(r.GetID(), r.GetName(), r.GetEndLocation(),\
+                r.GetLabelLocation()) for r in allSelectedRanks]
 
     def GetAdditionalRanks(self):
         curList = []
@@ -789,7 +751,7 @@ class CoreWrapper(object):
             return None
         self._song.currentMove.LookUpID(rankID).DeleteSplinePoint(number)
 
-	#(Brady) TODO: prevent changing name if not on the very first move.
+    #(Brady) TODO: prevent changing name if not on the very first move.
     # Pass in the ID of the rank to name, and its new name.
     def NameRank(self, name):
         if (self._song.currentMove is None):

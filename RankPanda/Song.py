@@ -347,7 +347,7 @@ class Song(object):
             return None
 
 
-
+    #If the given count is outside of range of waypoints.  Or less than 2.
     def CanAnimate(self, count):
         if (len(self._wayPointList) < 2):
             return False
@@ -369,8 +369,8 @@ class Song(object):
 
     def AnimationStep(self):
         if (not self.animating):
-            print("not self.animating") #(Brady) debug
-            return (None, 0, 0) #(Brady) added the last 0 to fix error unpacking tuple (try other values to see if it has any effect)
+            return (None, 0, 0)  # TODO(Brady): added the last 0 to fix error 
+            # unpacking tuple (try other values to see if it has any effect)
         if (self.songLoaded):
             time = self.timeOffset + pygame.mixer.music.get_pos()
             count = self.ConvertTimeToCount(time)

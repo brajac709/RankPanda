@@ -26,3 +26,4 @@ UPDATED INSTRUCTIONS:  (as of 6/19/13 - Brady)
   Install or build them and put them in the site-packages folder of PythonXX\Lib folder  (where XX is the version of python you installed)
   Python 2.7 may be downloaded from  http://www.python.org/getit/
   NOTE: RankPanda will not work with Python 3.
+

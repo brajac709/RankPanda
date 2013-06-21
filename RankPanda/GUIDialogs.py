@@ -846,14 +846,12 @@ class GateTurnDialog(wx.Dialog):
 # begin layout code
         self.directionPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.directionChoices = ['Clockwise', 'Counter-clockwise']
-        #self.directionChoicesValues = [0, 1]  #These aren't really needed I dont think
         self.directionRadioBox = wx.RadioBox(self, wx.ID_ANY, "Direction", choices = self.directionChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.directionRadioBox.SetSelection(0) # clockwise selected by default
         self.directionPanel.Add(self.directionRadioBox, 1)
         
         self.pivotPanel = wx.BoxSizer(wx.HORIZONTAL)
         self.pivotChoices = ['At arrow               ', 'At point']
-        #self.pivotChoicesValues = [0, 1]
         self.pivotRadioBox = wx.RadioBox(self, wx.ID_ANY, "Non-Pivot Point", choices = self.pivotChoices, majorDimension = 2, style = wx.RA_SPECIFY_COLS)
         self.pivotRadioBox.SetSelection(0) # arrow selected by default
         self.pivotPanel.Add(self.pivotRadioBox, 1)    
@@ -909,8 +907,8 @@ class GateTurnDialog(wx.Dialog):
             d.ShowModal()
             d.Destroy()
             return   
-        #self.output = (self.directionChoicesValues[self.directionRadioBox.GetSelection()], self.pivotChoicesValues[self.pivotRadioBox.GetSelection()] , length)
-        self.output = (self.directionRadioBox.GetSelection(), self.pivotRadioBox.GetSelection(), length)
+        self.output = (self.directionRadioBox.GetSelection(),\
+                self.pivotRadioBox.GetSelection(), length)
         self.EndModal(0)
 
     def OnCancel(self, event):
