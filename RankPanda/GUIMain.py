@@ -94,7 +94,8 @@ class MainWindow(wx.Frame):
 
                     while loop:
                         dirname = ''
-                        e = wx.FileDialog(self, "Open File", dirname, "", "*.panda", wx.OPEN)
+                        e = wx.FileDialog(self, "Open File", dirname,\
+                            "", "*.panda", wx.OPEN)
                         if e.ShowModal() == wx.ID_OK:
                             self.filename = os.path.join(e.GetDirectory(), e.GetFilename())
                             if self.core.Load(self.filename) == -1: # load failed
@@ -279,7 +280,8 @@ class MainWindow(wx.Frame):
         self.fieldbar.Bind(wx.EVT_PAINT, self.fieldbar.OnPaint)
         self.fieldbar.Bind(wx.EVT_SIZE, self.fieldbar.OnResize)
         self.fieldbar.Bind(wx.EVT_LEFT_DOWN, self.fieldbar.OnLeftClick)
-        self.fieldbar.Bind(wx.EVT_RIGHT_DOWN, self.fieldbar.OnRightClick) #right clicks dont actually do anything, ATM.
+        # right clicks dont actually do anything, ATM.
+        self.fieldbar.Bind(wx.EVT_RIGHT_DOWN, self.fieldbar.OnRightClick) 
         self.fieldbar.Bind(wx.EVT_LEFT_UP, self.fieldbar.OnLeftUnclick)
         self.fieldbar.Bind(wx.EVT_RIGHT_UP, self.fieldbar.OnRightUnclick)
         self.fieldbar.Bind(wx.EVT_MOTION, self.fieldbar.OnMouseMove)
@@ -360,7 +362,7 @@ class MainWindow(wx.Frame):
         self.rankNamePanel = wx.BoxSizer(wx.HORIZONTAL)
         self.rankNamePanel.Add(self.rankNameListPanel, 1, wx.EXPAND)
 
-        #TODO Make this a static Module level or Class level variable.
+        # TODO(Brady): Make this a static Module level or Class level variable.
         self.commandAddChoices = ['MT', 'Hlt', 'FM', 'BM', 'RS', 'LS', 'Flat']
         self.commandAddButtons = []
 
@@ -511,7 +513,7 @@ class MainWindow(wx.Frame):
             item.SetText(m[1])
             item.SetImage(i)
 
-            self.moveSetList.Add(self.field.RenderSet(self.core.GetRanks(moveNumber = i))) #(Brady) changed from GetRanksGivenMove(i) to GetRanks(moveNumber=i)
+            self.moveSetList.Add(self.field.RenderSet(self.core.GetRanks(moveNumber = i)))
 
             self.moveList.InsertItem(item)
 
@@ -817,13 +819,7 @@ class MainWindow(wx.Frame):
             #d.Destroy()
             #return
         
-        #orig. code
-        #n=0                  
-        #while(n<len(ranks)):
-        #    if not self.core.IsRankHeld(ranks[n][0]): # if selected rank is not locked, just silently don't do anything
-        #        return
-        #    n=n+1
-#(Brady) Fixed: give a message that some ranks are not locked instead of doing nothing.
+# give a message that some ranks are not locked instead of doing nothing.
         unlocked = [r for r in ranks if not self.core.IsRankHeld(r[0])] 
         if unlocked != []:
             d = wx.MessageDialog(self, "Rank(s) " + ", ".join([r[1] for r in unlocked]) + " are not locked.  Could not add command.", "Unlocked Ranks", wx.OK)
@@ -948,16 +944,11 @@ class MainWindow(wx.Frame):
             #d.Destroy()
             #return
 
-        #orig. Code
-        #n=0
-        #while(n<len(ranks)):
-        #    if not self.core.IsRankHeld(ranks[n][0]): # if selected rank is not locked, just silently don't do anything
-        #        return
-        #    n=n+1
-		#(Brady) add dialog to tell you its not locked.
+        # add dialog to tell you its not locked.
         unlocked = [r for r in ranks if not self.core.IsRankHeld(r[0])] 
         if unlocked != []:
-            d = wx.MessageDialog(self, "Ranks " + ", ".join([r[1] for r in unlocked]) + " are not locked.  Could not add command.", "Unlocked Ranks", wx.OK)
+            d = wx.MessageDialog(self, "Ranks " + ", ".join([r[1] for r in unlocked])\
+              + " are not locked.  Could not add command.", "Unlocked Ranks", wx.OK)
             d.ShowModal()
             d.Destroy()
             return
@@ -1151,7 +1142,7 @@ class MainWindow(wx.Frame):
             moveNames = []
             commandStrings = []
             measureInfo = []
-            movetexts=[]#[text, overwrite? boolean] tuple list
+            movetexts=[]  # [text, overwrite? boolean] tuple list
             i=0
             while (i < len(moveList)):
                 self.core.ChangeMove(i)
@@ -1250,7 +1241,7 @@ class MainWindow(wx.Frame):
         #(Brady) Fixing needing to individually unlock ranks.  For now just a simple dialog listing all ranks, but maybe will add 
         #sort of menu to select individual ranks if needed...
         
-		#orig. code
+        #orig. code
         #for r in ranks:
         #    if self.core.IsRankHeld(r[0]):
         #        d = wx.MessageBox("Are you sure you want to unlock rank " + r[1] + "?", "Unlock Rank", wx.YES_NO, self)

@@ -4,22 +4,34 @@ import Commands
 import Point
 import pprint
 
-#(Brady) matches command names to function references to call in AddBasicCommand()
-commandHash = {"MarkTime": Commands.MarkTime, "MT": Commands.MarkTime, "ForwardMarch":Commands.ForwardMarch, "FM":Commands.ForwardMarch,
-               "BackMarch":Commands.BackMarch, "BM":Commands.BackMarch, "RightSlide":Commands.RightSlide, "RS":Commands.RightSlide,
-               "LeftSlide":Commands.LeftSlide, "LS":Commands.LeftSlide, "GTCCW0":Commands.GTCCW0, "GTCW0":Commands.GTCW0,
-               "GTCCW1":Commands.GTCCW1, "GTCW1":Commands.GTCW1, "PWCCW":Commands.PWCCW, "PWCW":Commands.PWCW,
-               "Expand0":Commands.Expand0, "Exp0":Commands.Expand0, "Expand1":Commands.Expand1, "Exp1":Commands.Expand1,
-               "Condense0":Commands.Condense0, "Cond0":Commands.Condense0, "Condense1":Commands.Condense1, "Cond1":Commands.Condense1,
+# matches command names to function references to call in AddBasicCommand()
+commandHash = {"MarkTime": Commands.MarkTime, "MT": Commands.MarkTime, \
+               "ForwardMarch":Commands.ForwardMarch, "FM":Commands.ForwardMarch,
+               "BackMarch":Commands.BackMarch, "BM":Commands.BackMarch, \
+               "RightSlide":Commands.RightSlide, "RS":Commands.RightSlide,
+               "LeftSlide":Commands.LeftSlide, "LS":Commands.LeftSlide, \
+               "GTCCW0":Commands.GTCCW0, "GTCW0":Commands.GTCW0, \
+               "GTCCW1":Commands.GTCCW1, "GTCW1":Commands.GTCW1, \
+               "PWCCW":Commands.PWCCW, "PWCW":Commands.PWCW, \
+               "Expand0":Commands.Expand0, "Exp0":Commands.Expand0, \
+               "Expand1":Commands.Expand1, "Exp1":Commands.Expand1,\
+               "Condense0":Commands.Condense0, "Cond0":Commands.Condense0, \
+               "Condense1":Commands.Condense1, "Cond1":Commands.Condense1,\
                "Flatten":Commands.Flatten, "Flat":Commands.Flatten}
 
+# TODO(Brady) Have an option to display (and to edit) the information of a rank 
+# such as length (steps), rotation (degrees hor/vert), instrument, etc.
+# Also make rank labels draggable (fairly minor importance)
 class Rank(object):
     def __init__(self, endLocation, move):
         self._endLocation = endLocation
         self._id = move.GetRankIDGen().GetID()
         self._name = None
         self._commandList = []
-        self._move = move
+        #TODO(brady): try keeping just one rank for the whole song to help
+        #carry changes through. Perhaps keep a basic version of this class 
+        #for each move but make them a child of the rank for whole song.
+        self._move = move  
         # TODO(astory): why isn't this called 'locked'?
         self.hold = False
         self.grabbed = False
@@ -71,6 +83,8 @@ class Rank(object):
         listOfPoints = self._endLocation.GetListOfPoints()
         newPoints = []
         l = len(listOfPoints)
+        #Perhaps use list comprehension?
+        #newPoints = [Point.Point(p.x + dx, p.y +dy) for p in listOfPoints]
         while (i < l):
             newPoints.append(\
                 Point.Point(listOfPoints[i].x + dx, listOfPoints[i].y + dy))
@@ -181,7 +195,9 @@ class Rank(object):
         if (p is None):
             return None
         return (p.LookUpName(self._name))
-
+    
+    #TODO(Brady) This whole framework of matching positions to the next move seems 
+    #wierd and buggy. try to keep locations in current move, or connect some other way?
     def GetFollowing(self):
         """Returns this rank from the next move if it exists, else, None"""
         if (self._name is None):
@@ -264,10 +280,13 @@ class Rank(object):
             beginLocation = self.GetPrior().GetEndLocation()
         else:
             beginLocation = self._commandList[number - 1].GetEndLocation()
+        try:
+            newCommand = commandHash[commandName](length, beginLocation) 
+        except KeyError:
+            # assumes command line is open. Rank doesn't have access to the GUI
+            # to make a dialog box.
+            print("Unknown command: " + str(commandName))
         
-		#(Brady) simplified this by adding a dictionary to hash names to the function
-        newCommand = commandHash[commandName](length, beginLocation) #May want to catch a KeyError in case of typo or something...
-
         self._commandList.insert(number, newCommand)
         if (name is not None):
             newCommand.SetName(name)
@@ -663,7 +682,8 @@ class Rank(object):
         #LMD change to round
         endLength = int(round(math.sqrt(\
             (end1.x - end0.x)**2 + (end1.y - end0.y)**2)))
-		#(Brady) Pretty sure this assumes that in usually ranks are 16 steps long (which is generally true)
+        #(Brady) Pretty sure this assumes that in usually ranks are 16 steps long (which is generally true)
+        #however should allow for nonstandard lengths
         if (beginLength != 16):
             newMid1x = (begin1.x - begin0.x)*(8/beginLength) + begin0.x
             newMid1y = (begin1.y - begin0.y)*(8/beginLength) + begin0.y
