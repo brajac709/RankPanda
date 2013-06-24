@@ -229,11 +229,7 @@ class RankLocation(object):
             lengths.append(
                 math.sqrt(
                     (self._listOfPoints[i - 1].x - self._listOfPoints[i].x) *
-<<<<<<< HEAD
                     (self._listOfPoints[i - 1].x - self._listOfPoints[i].x) +
-=======
-                    (self._listOfPoints[i - 1].x - self._listOfPoints[i].x)
->>>>>>> 59531fcf6938069a3c63a9b4bbfcf65eb3010dbf
                     (self._listOfPoints[i - 1].y - self._listOfPoints[i].y) *
                     (self._listOfPoints[i - 1].y - self._listOfPoints[i].y)))
             i += 1

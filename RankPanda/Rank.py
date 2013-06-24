@@ -35,6 +35,7 @@ class Rank(object):
         # TODO(astory): why isn't this called 'locked'?
         self.hold = False
         self.grabbed = False
+
         self.grabbedPoint = None
         self.instrument = None
         self.listOfSelectedCommandNumbers = []
